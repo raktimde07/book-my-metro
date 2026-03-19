@@ -1,0 +1,5 @@
+book-my-metro-backend/node_modules
+book-my-metro-frontend/node_modules
+
+book-my-metro-backend/.env
+book-my-metro-frontend/.env
