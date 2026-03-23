@@ -1,0 +1,5 @@
+# 1. Run the blueprint to build the tables
+psql -U raktim -d kolkata_metro -f book_my_metro_backend/src/database/schema.sql
+
+# 2. Run the seed file to populate the data
+psql -U raktim -d kolkata_metro -f book_my_metro_backend/src/database/seed.sql

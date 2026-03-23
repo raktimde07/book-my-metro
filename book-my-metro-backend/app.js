@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import stationRoutes from './src/modules/stations/stationRoutes.js';
+import userRoutes from './src/modules/users/userRoutes.js';
 
 dotenv.config();
 
@@ -20,7 +21,11 @@ app.get('/', (req, res) => {
     res.send('Welcome to the Book My Metro API!');
 });
 
+// Mount the user routes at /api/users 
+app.use('/api/users', userRoutes);
+
 // Mount the station routes at /api/stations
 app.use('/api/stations', stationRoutes);
+
 
 export default app; 

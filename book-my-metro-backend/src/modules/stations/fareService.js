@@ -3,7 +3,7 @@ import { pool } from '../../config/database.js';
 class FareService {
     // 1. Fetch the network edges from PostgreSQL
     static async getNetworkEdges() {
-        // This brilliant SQL query finds every station that is exactly 1 sequence number away on the same line
+        // This SQL query finds every station that is exactly 1 sequence number away on the same line
         const query = `
             SELECT a.station_id AS source, b.station_id AS target
             FROM station_routes a

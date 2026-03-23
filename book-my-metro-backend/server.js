@@ -29,7 +29,7 @@ app.listen(PORT, () => {
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
     // Application specific logging, throwing an error, or other logic here
-    process
+    process.exit(1); // Exit the process with an error code
     }   
 );
 
