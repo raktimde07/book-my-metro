@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import stationRoutes from './src/modules/stations/stationRoutes.js';
 import userRoutes from './src/modules/users/userRoutes.js';
+import bookingRoutes from './src/modules/bookings/bookTicketRoutes.js';
 
 dotenv.config();
 
@@ -26,6 +27,10 @@ app.use('/api/users', userRoutes);
 
 // Mount the station routes at /api/stations
 app.use('/api/stations', stationRoutes);
+
+// Mount the booking routes at /api/bookings
+app.use('/api/bookings', bookingRoutes);
+
 
 
 export default app; 
