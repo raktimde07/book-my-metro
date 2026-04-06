@@ -79,4 +79,45 @@ const bookTicket = async (req, res) => {
     }
 };
 
-export { bookTicket };
+const getBookingHistory = async (req, res) => {
+    // This function can be implemented to fetch the booking history for a user
+    // It would involve querying the bookings table for all entries related to the userId
+    // and returning them in a structured format.
+
+    let client;
+    try {
+        const { userId } = req.user; // Extracted from JWT token by auth middleware
+
+        if (!userId) {
+            return res.status(400).json({ 
+                status: 'fail',
+                message: 'Please provide userId' 
+            });
+        }
+
+        client = await pool.connect();
+
+        const query = `
+            SELECT id AS booking_id, source_station_id, destination_station_id, fare, status, created_at, valid_until
+            FROM bookings
+            WHERE user_id = $1
+            ORDER BY created_at DESC
+        `;
+        const result = await client.query(query, [userId]);
+
+        res.status(200).json({
+            status: 'success',
+            results: result.rowCount,
+            data: result.rows
+        });
+
+    } catch (error) {
+        console.error("Error fetching booking history:", error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    } finally {
+        if (client) client.release();
+    }       
+
+};
+
+export { bookTicket, getBookingHistory };
