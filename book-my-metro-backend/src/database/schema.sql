@@ -77,3 +77,20 @@ CREATE TABLE user_social_links (
 -----------------*************-----------------
 --BOOKING SCHEMA
 -----------------*************-----------------
+
+CREATE TABLE bookings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    source_station_id INTEGER NOT NULL REFERENCES stations(id),
+    destination_station_id INTEGER NOT NULL REFERENCES stations(id),
+    fare NUMERIC(5, 2) NOT NULL CHECK (fare >= 0),
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING' 
+        CHECK (status IN ('PENDING', 'ACTIVE', 'COMPLETED', 'EXPIRED', 'CANCELLED')),
+    qr_signature TEXT UNIQUE,
+    valid_until TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP + INTERVAL '12 hours',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+--  Since users will frequently ask "Show me my ticket history", 
+--  hence creating an index on user_id in the bookings table to speed up those queries.
+CREATE INDEX idx_bookings_user_id ON bookings(user_id);
