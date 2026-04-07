@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import axios from 'axios';
@@ -11,8 +11,31 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false); // For showing a loading spinner during API calls
+  const [isCheckingVault, setIsCheckingVault] = useState(true); // state to handle the initial boot check
 
-  // 2. The function that will eventually talk to oour Node backend
+  // The Auto-Login Logic
+  useEffect(() => {
+    const checkLoginState = async () => {
+      try {
+        const token = await SecureStore.getItemAsync('userToken');
+        if (token) {
+          console.log("🔓 Token found in vault! Bypassing login...");
+          // If token exists, jump to home screen
+          router.replace('./home'); 
+        } else {
+          // If no token, turn off the loading screen so they can log in
+          setIsCheckingVault(false); 
+        }
+      } catch (error) {
+        console.error("Error reading from secure store", error);
+        setIsCheckingVault(false);
+      }
+    };
+
+    checkLoginState();
+  }, []); // The empty array ensures this only runs ONCE when the app opens
+
+  // 2. The function that will eventually talk to our Node backend
   const handleLogin = async () => {
 
     // 1. Reset error message on new attempt
@@ -44,7 +67,7 @@ export default function LoginScreen() {
       console.log("Token stored securely. Navigating to main app...");
       
       // Navigate the user into the main app 
-      router.replace('/');
+      router.replace('./home');
     } catch (error) {
       if (axios.isAxiosError(error)) {
         // 2. Catch Timeout or Network Errors specifically
@@ -61,6 +84,15 @@ export default function LoginScreen() {
         setIsLoading(false); // Stop loading spinner
     }
 };
+
+// Show a loading screen while we're checking the vault for an existing token
+if (isCheckingVault) {
+    return (
+      <SafeAreaView style={[styles.container, { alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#007bff" />
+      </SafeAreaView>
+    );
+  }
 
   // 3. The UI Blueprint (Declarative rendering)
   return (
