@@ -78,6 +78,7 @@ CREATE TABLE user_social_links (
 --BOOKING SCHEMA
 -----------------*************-----------------
 
+--Create Bookings table
 CREATE TABLE bookings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
