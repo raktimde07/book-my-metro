@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } fro
 import { router } from 'expo-router';
 import axios from 'axios';
 import apiClient from '../api/client';
+import * as SecureStore from 'expo-secure-store';
 
 export default function LoginScreen() {
   // 1. We use React State to hold the data the user types
@@ -32,6 +33,11 @@ export default function LoginScreen() {
 
       // The backend should send back a JWT token on success
       console.log("✅ Login Success! Data received:", response.data);
+
+      // Store the token securely for future API calls
+      await SecureStore.setItemAsync('userToken', response.data.token);
+
+      console.log("Token stored securely. Navigating to main app...");
       
       // Navigate the user into the main app 
       router.replace('/');
