@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import axios from 'axios';
 import apiClient from '../api/client';
@@ -10,6 +10,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // For showing a loading spinner during API calls
 
   // 2. The function that will eventually talk to oour Node backend
   const handleLogin = async () => {
@@ -24,6 +25,9 @@ export default function LoginScreen() {
       setErrorMessage('Please fill out all mandatory fields.');
       return; // This stops the function from running the API call!
     }
+
+    setIsLoading(true); // Start loading spinner
+
     try{
         // This automatically prepends our EXPO_PUBLIC_API_URL.
         const response = await apiClient.post('/users/login', {
@@ -42,13 +46,19 @@ export default function LoginScreen() {
       // Navigate the user into the main app 
       router.replace('/');
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            setErrorMessage(error.response?.data?.message || 'Login failed.');
-            console.log("Axios Error:", error.response);
+      if (axios.isAxiosError(error)) {
+        // 2. Catch Timeout or Network Errors specifically
+        if (error.code === 'ECONNABORTED' || error.message === 'Network Error') {
+          setErrorMessage('Network error. Please check your Wi-Fi connection and make sure the server is running.');
         } else {
-            setErrorMessage('An unexpected error occurred. Please try again.');
-            console.log("Unexpected Error:", error);
+          setErrorMessage(error.response?.data?.message || 'Invalid credentials.');
         }
+        console.error("Login Failed:", error.message);
+      } else {
+        setErrorMessage('An unexpected error occurred.');
+      }
+    }finally {
+        setIsLoading(false); // Stop loading spinner
     }
 };
 
@@ -78,8 +88,12 @@ export default function LoginScreen() {
           secureTextEntry={true} // Hides the password characters
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
+        <TouchableOpacity 
+          style={[styles.button, isLoading && { backgroundColor: '#a0c4ff' }]} // Make it lighter if loading
+          onPress={handleLogin}
+          disabled={isLoading} // Physically prevents double-clicking
+        >
+          {isLoading ? (<ActivityIndicator color="#fff" />) : (<Text style={styles.buttonText}>Login</Text>)}
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/register')}>
